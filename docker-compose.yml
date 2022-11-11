@@ -1,0 +1,32 @@
+version: '3.7'
+
+services:
+  postgresDB:
+    image: postgres
+    container_name:  postgresDB
+    restart: always
+    ports:
+      - 5432:5432
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  
+  confMapper:
+    container_name: confMapper
+    build: .
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
+    depends_on:
+      - postgresDB
+    restart: on-failure
+    environment:
+      - DB_HOST=postgresDB
+      - DB_DSN="host=${postgresDB} user=postgres password=password dbname=postgres port=5432 sslmode=disable TimeZone=Europe/Helsinki"
+
+volumes:
+  postgres_data:

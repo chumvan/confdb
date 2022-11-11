@@ -1,18 +1,16 @@
 package main
 
 import (
+	"log"
+
 	initializer "github.com/chumvan/confdb/initializers"
 	"github.com/gin-gonic/gin"
 )
 
 func init() {
-	config, err := initializer.LoadEnv(".")
+	_, err := initializer.ConnectToDB()
 	if err != nil {
-		panic(err)
-	}
-	_, err = initializer.ConnectToDB(config.DBDns)
-	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 

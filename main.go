@@ -3,21 +3,27 @@ package main
 import (
 	"log"
 
+	controller "github.com/chumvan/confdb/controllers"
 	initializer "github.com/chumvan/confdb/initializers"
+	model "github.com/chumvan/confdb/models"
 	"github.com/gin-gonic/gin"
 )
 
-func init() {
-	_, err := initializer.ConnectToDB()
+func main() {
+	DB, err := initializer.ConnectToDB()
 	if err != nil {
 		log.Fatal(err)
 	}
-}
+	err = DB.AutoMigrate(&model.ConfInfo{}, model.User{})
+	if err != nil {
+		log.Fatal("failed to migrate", err)
+	}
 
-func main() {
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
 		c.String(200, "Hello World")
 	})
+	r.GET("/confInfos", controller.GetConfInfos)
+	r.POST("/confInfos", controller.CreateAConfInfo)
 	r.Run()
 }

@@ -14,8 +14,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
   
-  confMapper:
-    container_name: confMapper
+  confmapper:
+    container_name: confmapper
     build: .
     ports:
       - 8080:8080
@@ -26,7 +26,6 @@ services:
     restart: on-failure
     environment:
       - DB_HOST=postgresDB
-      - DB_DSN="host=${postgresDB} user=postgres password=password dbname=postgres port=5432 sslmode=disable TimeZone=Europe/Helsinki"
 
 volumes:
   postgres_data:

@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	model "github.com/chumvan/confdb/models"
@@ -18,6 +17,16 @@ func GetConfInfos(c *gin.Context) {
 	}
 	c.JSON(http.StatusAccepted, gin.H{"data": confInfos})
 
+}
+
+func GetAConfInfoById(c *gin.Context) {
+	id := c.Params.ByName("id")
+	var confInfo model.ConfInfo
+	if err := model.GetOneConfInfoById(id, &confInfo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"mesage": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": confInfo})
 }
 
 type ConfInfoInput struct {
@@ -39,9 +48,8 @@ func CreateAConfInfo(c *gin.Context) {
 		Subject: input.Subject,
 		Users:   input.Users,
 	}
-	fmt.Printf("Users type: %#v\n Users: %#v", confInfo.Users, confInfo.Users)
-	err = model.AddNewConfInfo(&confInfo)
 
+	err = model.AddNewConfInfo(&confInfo)
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{"message": err.Error()})
 		return

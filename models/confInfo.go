@@ -23,8 +23,16 @@ type ConfInfo struct {
 // GET /confInfos
 // Get all ConfInfos
 func GetAllConfInfos(confInfos *[]ConfInfo) (err error) {
-
 	if err = initializer.DB.Preload("Users").Find(&confInfos).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// GET /confInfos/:id
+// Get a ConfInfo by its id
+func GetOneConfInfoById(confId string, confInfo *ConfInfo) (err error) {
+	if err = initializer.DB.Where("id = ?", confId).First(&confInfo).Error; err != nil {
 		return err
 	}
 	return nil

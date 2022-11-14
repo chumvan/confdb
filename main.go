@@ -20,10 +20,10 @@ func main() {
 	}
 
 	r := gin.Default()
-	r.GET("/", func(c *gin.Context) {
-		c.String(200, "Hello World")
-	})
+
 	r.GET("/confInfos", controller.GetConfInfos)
 	r.POST("/confInfos", controller.CreateAConfInfo)
+	r.GET("/confInfos/:id", controller.GetAConfInfoById)
+
 	r.Run()
 }

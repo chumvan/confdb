@@ -71,3 +71,61 @@ func CreateAConfInfo(c *gin.Context) {
 	}
 	c.JSON(http.StatusCreated, gin.H{"data": confInfo})
 }
+
+type InputUser struct {
+	EntityUrl datatypes.URL
+	Role      string
+}
+
+func AddUserToConfInfo(c *gin.Context) {
+	topic := c.Params.ByName("topic")
+	if topic != "" {
+		var confInfo model.ConfInfo
+		var inputUser InputUser
+		if err := c.ShouldBindJSON(&inputUser); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+
+		user := model.User{
+			EntityUrl: inputUser.EntityUrl,
+			Role:      inputUser.Role,
+		}
+
+		if err := model.PatchUserToTopic(topic, user, &confInfo); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		users := confInfo.Users
+		c.JSON(http.StatusOK, users)
+		return
+	}
+	c.JSON(http.StatusNotFound, gin.H{"message": "topic not found"})
+
+}
+
+func DeleteUserFromTopic(c *gin.Context) {
+	topic := c.Params.ByName("topic")
+	if topic != "" {
+		var confInfo model.ConfInfo
+		var inputUser InputUser
+		if err := c.ShouldBindJSON(&inputUser); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+
+		user := model.User{
+			EntityUrl: inputUser.EntityUrl,
+			Role:      inputUser.Role,
+		}
+
+		if err := model.DeleteUserFromTopic(topic, user, &confInfo); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "user deleted"})
+		return
+	}
+	c.JSON(http.StatusNotFound, gin.H{"message": "topic not found"})
+}

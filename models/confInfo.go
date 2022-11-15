@@ -28,7 +28,7 @@ type User struct {
 	UserID    uint `gorm:"primary_key"`
 	EntityUrl datatypes.URL
 	Role      string
-	ConfRefer string
+	ConfRefer uint
 }
 
 // Conference Information
@@ -39,37 +39,74 @@ type ConfInfo struct {
 	Users   []User `gorm:"foreignKey:ConfRefer"`
 }
 
-// GET /confInfos
+// GET /api/v1/confInfos
 // Get all ConfInfos
 func GetAllConfInfos(confInfos *[]ConfInfo) (err error) {
-	if err = initializer.DB.Preload("Users").Find(&confInfos).Error; err != nil {
+	if err = initializer.DB.
+		Preload("Users").
+		Find(&confInfos).
+		Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-// GET /confInfos/:id
+// GET /api/v1/confInfos/:id
 // Get a ConfInfo by its id
 func GetOneConfInfoById(confId string, confInfo *ConfInfo) (err error) {
-	if err = initializer.DB.Where("id = ?", confId).First(&confInfo).Error; err != nil {
+	if err = initializer.DB.
+		Where("id = ?", confId).
+		Preload("Users").
+		First(&confInfo).
+		Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-// GET /confInfos/:topic
+// GET /api/v1/confInfos/:topic
 // Get a ConfInfo by its topic which equals to its subject field
 func GetOneConfInfoByTopic(topic string, confInfo *ConfInfo) (err error) {
-	if err = initializer.DB.Where("subject = ?", topic).First(&confInfo).Error; err != nil {
+	if err = initializer.DB.
+		Where("subject = ?", topic).
+		Preload("Users").
+		First(&confInfo).
+		Error; err != nil {
 		return err
 	}
 	return nil
 }
 
-// POST /confInfos
+// POST /api/v1/confInfos
 // Create a ConfInfo in
 func AddNewConfInfo(confInfo *ConfInfo) (err error) {
 	if err = initializer.DB.Create(&confInfo).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// PATCH /api/v1/topicMode/confInfos/:topic
+// Patch a new User to a ConfInfo using a Topic
+func PatchUserToTopic(topic string, newUser User, confInfo *ConfInfo) (err error) {
+	if err = initializer.DB.
+		Where("subject = ?", topic).
+		First(&confInfo).
+		Error; err != nil {
+		return err
+	}
+	confInfo.Users = append(confInfo.Users, newUser)
+	initializer.DB.Save(&confInfo)
+	return nil
+}
+
+// DELETE /api/v1/topicMode/confInfos/:topic/users/:userUrl
+// Delete a user from a ConfInfo using his userUrl
+func DeleteUserFromTopic(topic string, user User, confInfo *ConfInfo) (err error) {
+	if err = initializer.DB.Where("subject = ?", topic).Preload("Users").First(&confInfo).Error; err != nil {
+		return err
+	}
+	if err = initializer.DB.Where("entity_url = ? AND role = ?", user.EntityUrl, user.Role).Delete(&confInfo.Users).Error; err != nil {
 		return err
 	}
 	return nil

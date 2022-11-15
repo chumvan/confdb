@@ -6,7 +6,7 @@
     "Subject": "subject1",
     "Users": [
         {
-            "EntityUrl": "url1.com",
+            "EntityUrl": "user1@url.com",
             "Role": "Subscriber"
         }
     ]
@@ -16,11 +16,11 @@
     "Subject": "subject2",
     "Users": [
         {
-            "EntityUrl": "url21.com",
+            "EntityUrl": "user21@url.com",
             "Role": "Subscriber"
         },
         {
-            "EntityUrl": "url22.com",
+            "EntityUrl": "user22@url.com",
             "Role": "Subscriber"
         }
     ]

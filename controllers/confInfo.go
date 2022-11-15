@@ -8,23 +8,17 @@ import (
 	"gorm.io/datatypes"
 )
 
+type ConfInfoInput struct {
+	ConfUri datatypes.URL
+	Subject string
+	Users   []model.User
+}
+
 func GetConfInfos(c *gin.Context) {
 	var confInfos []model.ConfInfo
 	err := model.GetAllConfInfos(&confInfos)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
-		return
-	}
-
-	// Filter by Id
-	id, ok := c.GetQuery("id")
-	if ok {
-		var confInfo model.ConfInfo
-		if err := model.GetOneConfInfoById(id, &confInfo); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"mesage": err.Error()})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{"data": confInfo})
 		return
 	}
 
@@ -44,10 +38,16 @@ func GetConfInfos(c *gin.Context) {
 	c.JSON(http.StatusAccepted, gin.H{"data": confInfos})
 }
 
-type ConfInfoInput struct {
-	ConfUri datatypes.URL
-	Subject string
-	Users   []model.User
+func GetConfInfoById(c *gin.Context) {
+	// Filter by Id
+	id := c.Params.ByName("id")
+
+	var confInfo model.ConfInfo
+	if err := model.GetOneConfInfoById(id, &confInfo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"mesage": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": confInfo})
 }
 
 func CreateAConfInfo(c *gin.Context) {

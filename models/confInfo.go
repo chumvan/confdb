@@ -11,6 +11,19 @@ import (
 	"gorm.io/gorm"
 )
 
+// Input for mocking ConfInfos
+type InputConfInfos struct {
+	Data []ConfInfo
+}
+
+// Input for mocking ConfInfo
+type InputConfInfo struct {
+	ConfUri datatypes.URL
+	Subject string
+	Users   []User
+}
+
+// User in a conference
 type User struct {
 	UserID    uint `gorm:"primary_key"`
 	EntityUrl datatypes.URL
@@ -18,6 +31,7 @@ type User struct {
 	ConfRefer string
 }
 
+// Conference Information
 type ConfInfo struct {
 	gorm.Model
 	ConfUri datatypes.URL
@@ -59,16 +73,6 @@ func AddNewConfInfo(confInfo *ConfInfo) (err error) {
 		return err
 	}
 	return nil
-}
-
-type InputConfInfos struct {
-	Data []ConfInfo
-}
-
-type InputConfInfo struct {
-	ConfUri datatypes.URL
-	Subject string
-	Users   []User
 }
 
 // Add initialized mocked data for development

@@ -8,6 +8,7 @@ import (
 func SetupRouter() (r *gin.Engine) {
 	r = gin.Default()
 
+	r.GET("/confInfos/:id", controller.GetConfInfoById)
 	r.GET("/confInfos", controller.GetConfInfos)
 	r.POST("/confInfos", controller.CreateAConfInfo)
 

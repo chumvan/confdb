@@ -118,9 +118,12 @@ func DeleteUserFromTopic(topic string, user User, confInfo *ConfInfo) (err error
 	if err = initializer.DB.Where("subject = ?", topic).Preload("Users").First(&confInfo).Error; err != nil {
 		return err
 	}
-	if err = initializer.DB.Where("entity_url = ? AND role = ?", user.EntityUrl, user.Role).Delete(&confInfo.Users).Error; err != nil {
+
+	deleted := initializer.DB.Where("entity_url = ? AND role = ?", user.EntityUrl, user.Role).Unscoped().Delete(&[]User{})
+	if deleted.Error != nil {
 		return err
 	}
+	// TODO check if deleting was made on a correct topic
 	return nil
 }
 

@@ -13,10 +13,12 @@ func SetupRouter() (r *gin.Engine) {
 		v1.GET("/confInfos", controller.GetConfInfos)
 		v1.POST("/confInfos", controller.CreateAConfInfo)
 
-		v1.GET("/topicMode/confInfos/:topic", controller.GetTopicInfo)
-		v1.PATCH("/topicMode/confInfos/:topic", controller.AddUserToConfInfo)
-		v1.DELETE("/topicMode/confInfos/:topic", controller.DeleteUserFromTopic)
+		topicMode := v1.Group("/topicMode")
+		{
+			topicMode.GET("/confInfos/:topic", controller.GetTopicInfo)
+			topicMode.PATCH("/confInfos/:topic", controller.AddUserToConfInfo)
+			topicMode.DELETE("/confInfos/:topic", controller.DeleteUserFromTopic)
+		}
 	}
-
 	return r
 }

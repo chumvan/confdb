@@ -15,18 +15,33 @@ func GetConfInfos(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"message": err.Error()})
 		return
 	}
-	c.JSON(http.StatusAccepted, gin.H{"data": confInfos})
 
-}
-
-func GetAConfInfoById(c *gin.Context) {
-	id := c.Params.ByName("id")
-	var confInfo model.ConfInfo
-	if err := model.GetOneConfInfoById(id, &confInfo); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"mesage": err.Error()})
+	// Filter by Id
+	id, ok := c.GetQuery("id")
+	if ok {
+		var confInfo model.ConfInfo
+		if err := model.GetOneConfInfoById(id, &confInfo); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"mesage": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"data": confInfo})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": confInfo})
+
+	// Filter by topic
+	topic, ok := c.GetQuery("topic")
+	if ok {
+		var confInfo model.ConfInfo
+		if err := model.GetOneConfInfoByTopic(topic, &confInfo); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"mesage": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"data": confInfo})
+		return
+	}
+
+	// Default return all ConfInfo
+	c.JSON(http.StatusAccepted, gin.H{"data": confInfos})
 }
 
 type ConfInfoInput struct {

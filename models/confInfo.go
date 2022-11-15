@@ -43,6 +43,15 @@ func GetOneConfInfoById(confId string, confInfo *ConfInfo) (err error) {
 	return nil
 }
 
+// GET /confInfos/:topic
+// Get a ConfInfo by its topic which equals to its subject field
+func GetOneConfInfoByTopic(topic string, confInfo *ConfInfo) (err error) {
+	if err = initializer.DB.Where("subject = ?", topic).First(&confInfo).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 // POST /confInfos
 // Create a ConfInfo in
 func AddNewConfInfo(confInfo *ConfInfo) (err error) {

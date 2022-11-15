@@ -20,7 +20,7 @@ func main() {
 
 	r := router.SetupRouter()
 
-	if err = model.MockData(); err != nil {
+	if err = model.AddMockData(); err != nil {
 		log.Fatal(err)
 	}
 

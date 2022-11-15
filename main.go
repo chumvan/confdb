@@ -3,10 +3,9 @@ package main
 import (
 	"log"
 
-	controller "github.com/chumvan/confdb/controllers"
 	initializer "github.com/chumvan/confdb/initializers"
 	model "github.com/chumvan/confdb/models"
-	"github.com/gin-gonic/gin"
+	"github.com/chumvan/confdb/router"
 )
 
 func main() {
@@ -19,11 +18,11 @@ func main() {
 		log.Fatal("failed to migrate", err)
 	}
 
-	r := gin.Default()
+	r := router.SetupRouter()
 
-	r.GET("/confInfos", controller.GetConfInfos)
-	r.POST("/confInfos", controller.CreateAConfInfo)
-	r.GET("/confInfos/:id", controller.GetAConfInfoById)
+	if err = model.MockData(); err != nil {
+		log.Fatal(err)
+	}
 
 	r.Run()
 }

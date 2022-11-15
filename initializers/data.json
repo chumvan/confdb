@@ -1,0 +1,33 @@
+{
+    "Data":
+[
+    {   
+    "ConfUri": "conf1@url.com",
+    "Subject": "subject1",
+    "Users": [
+        {
+            "EntityUrl": "url1.com",
+            "Role": "Subscriber"
+        }
+    ]
+},
+{   
+    "ConfUri": "conf2@url.com",
+    "Subject": "subject2",
+    "Users": [
+        {
+            "EntityUrl": "url21.com",
+            "Role": "Subscriber"
+        },
+        {
+            "EntityUrl": "url22.com",
+            "Role": "Subscriber"
+        }
+    ]
+},
+{   
+    "ConfUri": "conf3@url.com",
+    "Subject": "subject3",
+    "Users": []
+}
+]}

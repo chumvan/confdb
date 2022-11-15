@@ -53,7 +53,7 @@ func GetAllConfInfos(confInfos *[]ConfInfo) (err error) {
 
 // GET /api/v1/confInfos/:id
 // Get a ConfInfo by its id
-func GetOneConfInfoById(confId string, confInfo *ConfInfo) (err error) {
+func GetConfInfoById(confId string, confInfo *ConfInfo) (err error) {
 	if err = initializer.DB.
 		Where("id = ?", confId).
 		Preload("Users").
@@ -66,7 +66,7 @@ func GetOneConfInfoById(confId string, confInfo *ConfInfo) (err error) {
 
 // GET /api/v1/confInfos/:topic
 // Get a ConfInfo by its topic which equals to its subject field
-func GetOneConfInfoByTopic(topic string, confInfo *ConfInfo) (err error) {
+func GetConfInfoByTopic(topic string, confInfo *ConfInfo) (err error) {
 	if err = initializer.DB.
 		Where("subject = ?", topic).
 		Preload("Users").
@@ -97,6 +97,18 @@ func PatchUserToTopic(topic string, newUser User, confInfo *ConfInfo) (err error
 	}
 	confInfo.Users = append(confInfo.Users, newUser)
 	initializer.DB.Save(&confInfo)
+	return nil
+}
+
+// Topic mode
+
+// GET /api/v1/topicMode/confInfos/:topic
+// Get all information related to a Topic
+// An alternative way for GET /api/v1/confInfos/?topic
+func GetTopicInfo(topic string, confInfo *ConfInfo) (err error) {
+	if err = initializer.DB.Where("subject = ?", topic).Preload("Users").First(&confInfo).Error; err != nil {
+		return err
+	}
 	return nil
 }
 

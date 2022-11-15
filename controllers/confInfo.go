@@ -26,16 +26,16 @@ func GetConfInfos(c *gin.Context) {
 	topic, ok := c.GetQuery("topic")
 	if ok {
 		var confInfo model.ConfInfo
-		if err := model.GetOneConfInfoByTopic(topic, &confInfo); err != nil {
+		if err := model.GetConfInfoByTopic(topic, &confInfo); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"mesage": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"data": confInfo})
+		c.JSON(http.StatusOK, gin.H{"Data": confInfo})
 		return
 	}
 
 	// Default return all ConfInfo
-	c.JSON(http.StatusAccepted, gin.H{"data": confInfos})
+	c.JSON(http.StatusAccepted, gin.H{"Data": confInfos})
 }
 
 func GetConfInfoById(c *gin.Context) {
@@ -43,11 +43,11 @@ func GetConfInfoById(c *gin.Context) {
 	id := c.Params.ByName("id")
 
 	var confInfo model.ConfInfo
-	if err := model.GetOneConfInfoById(id, &confInfo); err != nil {
+	if err := model.GetConfInfoById(id, &confInfo); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"mesage": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": confInfo})
+	c.JSON(http.StatusOK, gin.H{"Data": confInfo})
 }
 
 func CreateAConfInfo(c *gin.Context) {
@@ -69,7 +69,7 @@ func CreateAConfInfo(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{"message": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"data": confInfo})
+	c.JSON(http.StatusCreated, gin.H{"Data": confInfo})
 }
 
 type InputUser struct {
@@ -125,6 +125,19 @@ func DeleteUserFromTopic(c *gin.Context) {
 		}
 
 		c.JSON(http.StatusOK, gin.H{"message": "user deleted"})
+		return
+	}
+	c.JSON(http.StatusNotFound, gin.H{"message": "topic not found"})
+}
+
+func GetTopicInfo(c *gin.Context) {
+	topic := c.Params.ByName("topic")
+	if topic != "" {
+		var confInfo model.ConfInfo
+		if err := model.GetTopicInfo(topic, &confInfo); err != nil {
+			c.JSON(http.StatusOK, gin.H{"message": err.Error()})
+		}
+		c.JSON(http.StatusOK, gin.H{"Data": confInfo})
 		return
 	}
 	c.JSON(http.StatusNotFound, gin.H{"message": "topic not found"})

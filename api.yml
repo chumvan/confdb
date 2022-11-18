@@ -1,0 +1,228 @@
+---
+openapi: 3.0.0
+info:
+  title: Topic as conference
+  description: This is a simple API for pubsub implementation using the SIP conference package
+  contact:
+    email: trung.van@ericsson.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: https://virtserver.swaggerhub.com/chumvan/pubsubConference/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: http://localhost:8080/api/v1
+  description: localhost
+paths:
+  /confInfos/:
+    get:
+      summary: get all ConfInfo
+      description: |
+        Get all Conference Information at a Conference Broker
+      responses:
+        "200":
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfInfo'
+        "404":
+          description: error not found
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      summary: post a ConfInfo
+      description: |
+        Post a Conference Information to a Conference Broker
+      responses:
+        "201":
+          description: created a confInfo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfInfo'
+        "400":
+          description: bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: can not operate creating
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /confInfos/{id}:
+    get:
+      summary: get a ConfInfo
+      description: |
+        Get a Conference Information by its Id
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: return an Id-matched ConfInfo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfInfo'
+        "404":
+          description: error not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /topicMode/confInfos/{topic}:
+    get:
+      summary: get topic info
+      description: |
+        Get a Conference Information by its Topic (Subject-field)
+      parameters:
+      - name: topic
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: return a topic-matched ConfInfo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfInfo'
+        "404":
+          description: error not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    patch:
+      summary: add a user to a topic
+      description: |
+        Modify a topic's participant by adding a user to it
+      parameters:
+      - name: topic
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: user input info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        "200":
+          description: a new user added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "400":
+          description: can not bind json or can not patch
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /topicMode/confInfos/{topic}/users/{userId}:
+    delete:
+      summary: remove a user from topic's users slice
+      description: |
+        Remove a user from a topic (or unsubscribe)
+      parameters:
+      - name: topic
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: userId
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: deleted a user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        "404":
+          description: topic or userId not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "403":
+          description: can not delete user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    User:
+      required:
+      - EntityUrl
+      - Role
+      type: object
+      properties:
+        EntityUrl:
+          type: string
+          format: uri
+          example: user@url.com
+        Role:
+          type: string
+          example: Subscriber
+    ConfInfo:
+      required:
+      - ConfUri
+      - Subject
+      - Users
+      type: object
+      properties:
+        ConfUri:
+          type: string
+          format: uri
+          example: conf@url.com
+        Subject:
+          type: string
+          example: subject1
+        Users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Not Found
+    inline_response_200:
+      type: object
+      properties:
+        message:
+          type: string
+          example: user deleted

@@ -44,7 +44,7 @@ func GetConfInfoById(c *gin.Context) {
 
 	var confInfo model.ConfInfo
 	if err := model.GetConfInfoById(id, &confInfo); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"mesage": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"Data": confInfo})
@@ -104,30 +104,27 @@ func AddUserToConfInfo(c *gin.Context) {
 
 }
 
+// func GetUserFromTopic(c *gin.Context) {
+// }
+
 func DeleteUserFromTopic(c *gin.Context) {
-	topic := c.Params.ByName("topic")
-	if topic != "" {
-		var confInfo model.ConfInfo
-		var inputUser InputUser
-		if err := c.ShouldBindJSON(&inputUser); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-
-		user := model.User{
-			EntityUrl: inputUser.EntityUrl,
-			Role:      inputUser.Role,
-		}
-
-		if err := model.DeleteUserFromTopic(topic, user, &confInfo); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{"message": "user deleted"})
+	topic, ok := c.Params.Get("topic")
+	if !ok {
+		c.JSON(http.StatusNotFound, gin.H{"message": "empty topic"})
 		return
 	}
-	c.JSON(http.StatusNotFound, gin.H{"message": "topic not found"})
+	userId, ok := c.Params.Get("userId")
+	if !ok {
+		c.JSON(http.StatusNotFound, gin.H{"message": "empty userId"})
+		return
+	}
+
+	if err := model.DeleteUserFromTopic(topic, userId, &model.ConfInfo{}); err != nil {
+		c.JSON(http.StatusForbidden, gin.H{"message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "user deleted"})
 }
 
 func GetTopicInfo(c *gin.Context) {

@@ -17,7 +17,7 @@ func SetupRouter() (r *gin.Engine) {
 		{
 			topicMode.GET("/confInfos/:topic", controller.GetTopicInfo)
 			topicMode.PATCH("/confInfos/:topic", controller.AddUserToConfInfo)
-			topicMode.DELETE("/confInfos/:topic", controller.DeleteUserFromTopic)
+			topicMode.DELETE("/confInfos/:topic/users/:userId", controller.DeleteUserFromTopic)
 		}
 	}
 	return r

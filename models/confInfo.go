@@ -114,16 +114,16 @@ func GetTopicInfo(topic string, confInfo *ConfInfo) (err error) {
 
 // DELETE /api/v1/topicMode/confInfos/:topic/users/:userUrl
 // Delete a user from a ConfInfo using his userUrl
-func DeleteUserFromTopic(topic string, user User, confInfo *ConfInfo) (err error) {
+func DeleteUserFromTopic(topic string, userId string, confInfo *ConfInfo) (err error) {
 	if err = initializer.DB.Where("subject = ?", topic).Preload("Users").First(&confInfo).Error; err != nil {
 		return err
 	}
-
-	deleted := initializer.DB.Where("entity_url = ? AND role = ?", user.EntityUrl, user.Role).Unscoped().Delete(&[]User{})
+	deleted := initializer.DB.Where("user_id = ?", userId).Unscoped().Delete(&[]User{})
 	if deleted.Error != nil {
 		return err
 	}
-	// TODO check if deleting was made on a correct topic
+	// TODO cover deleting the correct user belonging to an existing topic
+	// eg: "user21" from "subject1"
 	return nil
 }
 

@@ -2,31 +2,31 @@
     "Data":
 [
     {   
-    "ConfUri": "conf1@url.com",
+    "ConfUri": "sip:conf1@url.com",
     "Subject": "subject1",
     "Users": [
         {
-            "EntityUrl": "user1@url.com",
+            "EntityUrl": "sip:user1@url.com",
             "Role": "Subscriber"
         }
     ]
 },
 {   
-    "ConfUri": "conf2@url.com",
+    "ConfUri": "sip:conf2@url.com",
     "Subject": "subject2",
     "Users": [
         {
-            "EntityUrl": "user21@url.com",
+            "EntityUrl": "sip:user21@url.com",
             "Role": "Subscriber"
         },
         {
-            "EntityUrl": "user22@url.com",
+            "EntityUrl": "sip:user22@url.com",
             "Role": "Subscriber"
         }
     ]
 },
 {   
-    "ConfUri": "conf3@url.com",
+    "ConfUri": "sip:conf3@url.com",
     "Subject": "subject3",
     "Users": []
 }

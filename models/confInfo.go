@@ -7,7 +7,6 @@ import (
 	"os"
 
 	initializer "github.com/chumvan/confdb/initializers"
-	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +17,7 @@ type InputConfInfos struct {
 
 // Input for mocking ConfInfo
 type InputConfInfo struct {
-	ConfUri datatypes.URL
+	ConfUri string
 	Subject string
 	Users   []User
 }
@@ -26,7 +25,7 @@ type InputConfInfo struct {
 // User in a conference
 type User struct {
 	UserID    uint `gorm:"primary_key"`
-	EntityUrl datatypes.URL
+	EntityUrl string
 	Role      string
 	ConfRefer uint
 }
@@ -34,7 +33,7 @@ type User struct {
 // Conference Information
 type ConfInfo struct {
 	gorm.Model
-	ConfUri datatypes.URL
+	ConfUri string
 	Subject string
 	Users   []User `gorm:"foreignKey:ConfRefer"`
 }

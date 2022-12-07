@@ -1,17 +1,19 @@
 package controller
 
 import (
+	"net"
 	"net/http"
+	"os"
+	"strconv"
 
 	model "github.com/chumvan/confdb/models"
 	"github.com/gin-gonic/gin"
-	"gorm.io/datatypes"
 )
 
 type ConfInfoInput struct {
-	ConfUri datatypes.URL
+	ConfUri string
 	Subject string
-	Users   []model.User
+	Creator model.User
 }
 
 func GetConfInfos(c *gin.Context) {
@@ -50,6 +52,12 @@ func GetConfInfoById(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"Data": confInfo})
 }
 
+type ResponseCreateConfInfo struct {
+	ConfInfo  model.ConfInfo
+	TopicIP   net.IP
+	TopicPort int
+}
+
 func CreateAConfInfo(c *gin.Context) {
 	var input ConfInfoInput
 	err := c.ShouldBindJSON(&input)
@@ -61,7 +69,9 @@ func CreateAConfInfo(c *gin.Context) {
 	confInfo := model.ConfInfo{
 		ConfUri: input.ConfUri,
 		Subject: input.Subject,
-		Users:   input.Users,
+		Users: []model.User{
+			input.Creator,
+		},
 	}
 
 	err = model.AddNewConfInfo(&confInfo)
@@ -69,11 +79,22 @@ func CreateAConfInfo(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{"message": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"Data": confInfo})
+
+	forwarderIP := os.Getenv("FORWARDER_IP")
+	forwarderPortStr := os.Getenv("FORWARDER_RTP_IN_PORT")
+	forwarderRtpInPort, _ := strconv.Atoi(forwarderPortStr)
+
+	resp := ResponseCreateConfInfo{
+		ConfInfo:  confInfo,
+		TopicIP:   net.IP(forwarderIP),
+		TopicPort: forwarderRtpInPort,
+	}
+
+	c.JSON(http.StatusCreated, gin.H{"Data": resp})
 }
 
 type InputUser struct {
-	EntityUrl datatypes.URL
+	EntityUrl string
 	Role      string
 }
 

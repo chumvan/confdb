@@ -1,10 +1,9 @@
 package controller
 
 import (
-	"net"
+	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 
 	model "github.com/chumvan/confdb/models"
 	"github.com/gin-gonic/gin"
@@ -53,9 +52,9 @@ func GetConfInfoById(c *gin.Context) {
 }
 
 type ResponseCreateConfInfo struct {
-	ConfInfo  model.ConfInfo
-	TopicIP   net.IP
-	TopicPort int
+	ConfUri   string
+	TopicIP   string
+	TopicPort string
 }
 
 func CreateAConfInfo(c *gin.Context) {
@@ -82,14 +81,14 @@ func CreateAConfInfo(c *gin.Context) {
 
 	forwarderIP := os.Getenv("FORWARDER_IP")
 	forwarderPortStr := os.Getenv("FORWARDER_RTP_IN_PORT")
-	forwarderRtpInPort, _ := strconv.Atoi(forwarderPortStr)
+	fmt.Printf("forwarderIP: %s\nforwarderPort: %s\n", forwarderIP, forwarderPortStr)
 
 	resp := ResponseCreateConfInfo{
-		ConfInfo:  confInfo,
-		TopicIP:   net.IP(forwarderIP),
-		TopicPort: forwarderRtpInPort,
+		ConfUri:   confInfo.ConfUri,
+		TopicIP:   forwarderIP,
+		TopicPort: forwarderPortStr,
 	}
-
+	fmt.Printf("response from confDB: %v\n", resp)
 	c.JSON(http.StatusCreated, gin.H{"Data": resp})
 }
 

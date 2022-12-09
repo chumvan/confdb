@@ -134,11 +134,6 @@ func AddUserToConfInfo(c *gin.Context) {
 		fmt.Printf("users after patch: %v\n", users)
 
 		// update in topic (forwarder)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to parse confSipUri"})
-			return
-		}
-
 		forwarderIP := os.Getenv("FORWARDER_IP")
 		forwarderRESTPortStr := os.Getenv("FORWARDER_REST_PORT")
 
@@ -164,9 +159,9 @@ func AddUserToConfInfo(c *gin.Context) {
 		}
 
 		fmt.Printf("updated user at topic: %v", *resp)
-		// end of update in topic
 
 		defer req.Body.Close()
+		// end of update in topic
 		// reply to client
 		c.JSON(http.StatusOK, users)
 		return
@@ -196,6 +191,41 @@ func DeleteUserFromTopic(c *gin.Context) {
 		return
 	}
 
+	// update in topic (forwarder)
+	found := &model.ConfInfo{}
+	err := model.GetConfInfoByTopic(topic, found)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"message": "topic not found"})
+	}
+	users := found.Users
+	forwarderIP := os.Getenv("FORWARDER_IP")
+	forwarderRESTPortStr := os.Getenv("FORWARDER_REST_PORT")
+
+	topicUrl := fmt.Sprintf("http://%s:%s/users", forwarderIP, forwarderRESTPortStr)
+	fmt.Printf("topicUrl: %s\n", topicUrl)
+	payload, err := json.Marshal(users)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to parse user-slice"})
+		return
+	}
+	fmt.Printf("users: %v", users)
+	client := &http.Client{}
+	req, err := http.NewRequest(http.MethodPut, topicUrl, bytes.NewBuffer(payload))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "fail to create PUT req"})
+		return
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{"message": "fail to send PUT req"})
+		return
+	}
+
+	fmt.Printf("updated user at topic: %v", *resp)
+
+	defer req.Body.Close()
+	// end of update in topic
 	c.JSON(http.StatusOK, gin.H{"message": "user deleted"})
 }
 

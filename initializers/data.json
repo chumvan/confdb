@@ -7,7 +7,7 @@
     "Users": [
         {
             "EntityUrl": "sip:user1@url.com",
-            "Role": "Subscriber"
+	    "Role": "subscriber"
         }
     ]
 },
@@ -17,11 +17,11 @@
     "Users": [
         {
             "EntityUrl": "sip:user21@url.com",
-            "Role": "Subscriber"
+            "Role": "subscriber"
         },
         {
             "EntityUrl": "sip:user22@url.com",
-            "Role": "Subscriber"
+            "Role": "subscriber"
         }
     ]
 },

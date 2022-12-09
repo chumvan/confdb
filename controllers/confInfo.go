@@ -1,12 +1,14 @@
 package controller
 
 import (
+	"bytes"
 	"fmt"
 	"net/http"
 	"os"
 
 	model "github.com/chumvan/confdb/models"
 	"github.com/gin-gonic/gin"
+	"github.com/goccy/go-json"
 )
 
 type ConfInfoInput struct {
@@ -95,32 +97,82 @@ func CreateAConfInfo(c *gin.Context) {
 type InputUser struct {
 	EntityUrl string
 	Role      string
+	PortRTP   int
 }
 
 func AddUserToConfInfo(c *gin.Context) {
 	topic := c.Params.ByName("topic")
 	if topic != "" {
-		var confInfo model.ConfInfo
+		var found model.ConfInfo
 		var inputUser InputUser
 		if err := c.ShouldBindJSON(&inputUser); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
 
+		// check if topic has been created
+		err := model.GetConfInfoByTopic(topic, &found)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "topic not found"})
+			return
+		}
+		fmt.Printf("users in found topic: %v\n", found.Users)
+
 		user := model.User{
 			EntityUrl: inputUser.EntityUrl,
 			Role:      inputUser.Role,
+			PortRTP:   inputUser.PortRTP,
 		}
 
-		if err := model.PatchUserToTopic(topic, user, &confInfo); err != nil {
+		if err := model.PatchUserToTopic(topic, user, &found); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
 		}
-		users := confInfo.Users
+
+		users := found.Users
+
+		fmt.Printf("users after patch: %v\n", users)
+
+		// update in topic (forwarder)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to parse confSipUri"})
+			return
+		}
+
+		forwarderIP := os.Getenv("FORWARDER_IP")
+		forwarderRESTPortStr := os.Getenv("FORWARDER_REST_PORT")
+
+		topicUrl := fmt.Sprintf("http://%s:%s/users", forwarderIP, forwarderRESTPortStr)
+		fmt.Printf("topicUrl: %s\n", topicUrl)
+		payload, err := json.Marshal(users)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "failed to parse user-slice"})
+			return
+		}
+		fmt.Printf("users: %v", users)
+		client := &http.Client{}
+		req, err := http.NewRequest(http.MethodPut, topicUrl, bytes.NewBuffer(payload))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": "fail to create PUT req"})
+			return
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Println(err)
+			c.JSON(http.StatusBadRequest, gin.H{"message": "fail to send PUT req"})
+			return
+		}
+
+		fmt.Printf("updated user at topic: %v", *resp)
+		// end of update in topic
+
+		defer req.Body.Close()
+		// reply to client
 		c.JSON(http.StatusOK, users)
 		return
 	}
-	c.JSON(http.StatusNotFound, gin.H{"message": "topic not found"})
+
+	c.JSON(http.StatusNotFound, gin.H{"message": "empty topic string"})
 
 }
 

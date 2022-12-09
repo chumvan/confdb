@@ -28,6 +28,7 @@ type User struct {
 	EntityUrl string
 	Role      string
 	ConfRefer uint
+	PortRTP   int
 }
 
 // Conference Information
